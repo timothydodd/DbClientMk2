@@ -1,0 +1,40 @@
+[package]
+name = "dbclient-data"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Database drivers for dbclient: SQL Server, MySQL, SQLite, SSH tunnels"
+
+[dependencies]
+dbclient-core = { path = "../dbclient-core" }
+futures = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tokio-util = { version = "0.7", features = ["compat"] }
+async-trait = "0.1"
+chrono = { workspace = true }
+# SQL Server. TLS through the platform (schannel on Windows): no OpenSSL or aws-lc-rs in the tree.
+tiberius = { version = "0.13", default-features = false, features = ["tds80", "native-tls", "chrono", "rust_decimal", "sql-browser-tokio"] }
+# MySQL / MariaDB over rustls with the ring provider.
+mysql_async = { version = "0.37", default-features = false, features = ["default-rustls-ring", "minimal-rust"] }
+rusqlite = { version = "0.40.2", features = ["bundled", "column_decltype"] }
+russh = { version = "0.63.3", default-features = false, features = ["ring", "flate2", "rsa"] }
+sha2 = "0.11"
+md-5 = "0.11"
+base64 = "0.22"
+
+[target.'cfg(windows)'.dependencies]
+tiberius = { version = "0.13", default-features = false, features = ["winauth"] }
+
+[dev-dependencies]
+tempfile = "3.27.0"
+
+[dependencies.tracing]
+version = "0.1"
+
+[dependencies.tracing-subscriber]
+version = "0.3"
+default-features = false
+features = ["registry", "std"]

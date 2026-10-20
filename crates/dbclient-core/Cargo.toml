@@ -1,0 +1,13 @@
+[package]
+name = "dbclient-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Pure logic for dbclient: models, SQL parsing, IntelliSense, formatting, script generation"
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+regex = { workspace = true }
+thiserror = { workspace = true }

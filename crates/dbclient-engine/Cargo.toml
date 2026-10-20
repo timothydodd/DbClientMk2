@@ -1,0 +1,22 @@
+[package]
+name = "dbclient-engine"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "dbclient workspace engine: open connections, schema cache, query execution, SqlPackage runner"
+
+[dependencies]
+dbclient-core = { path = "../dbclient-core" }
+dbclient-data = { path = "../dbclient-data" }
+dbclient-store = { path = "../dbclient-store" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tokio-util = "0.7"
+futures = { workspace = true }
+chrono = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3.27.0"

@@ -1,0 +1,25 @@
+[package]
+name = "dbclient-store"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "On-disk state for dbclient: app state, per-connection sessions, query history, log, encrypted credentials"
+
+[dependencies]
+dbclient-core = { path = "../dbclient-core" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+chrono = { workspace = true }
+base64 = "0.22"
+aes-gcm = "0.11"
+pbkdf2 = { version = "0.13", default-features = false, features = ["hmac"] }
+sha2 = "0.11"
+rand = "0.9"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_Security_Cryptography"] }
+
+[dev-dependencies]
+tempfile = "3.27.0"

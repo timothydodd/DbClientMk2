@@ -1,0 +1,52 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Rust (workspace target lives at the repo root)
+target
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Tauri generated schemas
+src-tauri/gen
+
+# Release version stamp written by CI
+src-tauri/tauri.version.json
+
+# Build outputs, installer staging
+artifacts/
+
+# Never commit local data or credentials
+*.db
+*.db-*
+*.sqlite
+.env
+.env.*
+*.pem
+*.key
+*.pfx
+*.p12
+.claude/
+
+# Local tooling / editor state, exports, backups
+.vs/
+*.user
+*.bak
+*.dacpac
+*.csv
+*.json.corrupt-*

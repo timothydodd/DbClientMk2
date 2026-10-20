@@ -1,0 +1,16 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "app": {
+    "windows": [
+      {
+        "title": "dbclient",
+        "width": 1400,
+        "height": 850,
+        "minWidth": 600,
+        "minHeight": 400,
+        "decorations": false,
+        "visible": false
+      }
+    ]
+  }
+}
