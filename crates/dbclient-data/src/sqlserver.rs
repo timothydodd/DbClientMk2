@@ -13,6 +13,32 @@ use tiberius::{AuthMethod, Client, ColumnData, Config, EncryptionLevel, QueryIte
 use tokio::net::TcpStream;
 use tokio_util::compat::{Compat, TokioAsyncWriteCompatExt};
 
+/// Any byte stream a TDS session can run over: TCP, or a Windows named pipe.
+pub trait Rw: tokio::io::AsyncRead + tokio::io::AsyncWrite + Unpin + Send {}
+impl<T: tokio::io::AsyncRead + tokio::io::AsyncWrite + Unpin + Send> Rw for T {}
+type SqlClient = Client<Compat<Box<dyn Rw>>>;
+
+/// `localhost`, `127.0.0.1`, `.`, `(local)`, the machine's own name, or empty.
+fn is_local_host(host: &str) -> bool {
+    let h = host.trim().to_lowercase();
+    if h.is_empty() || matches!(h.as_str(), "localhost" | "127.0.0.1" | "::1" | "." | "(local)" | "local") {
+        return true;
+    }
+    std::env::var("COMPUTERNAME").or_else(|_| std::env::var("HOSTNAME")).map(|n| n.eq_ignore_ascii_case(&h)).unwrap_or(false)
+}
+
+/// `(localdb)\Name` → `Some("Name")`.
+#[cfg_attr(not(windows), allow(dead_code))]
+fn localdb_instance(address: &str) -> Option<String> {
+    let a = address.trim();
+    if !a.to_lowercase().starts_with("(localdb)") {
+        return None;
+    }
+    let rest = &a["(localdb)".len()..];
+    let name = rest.trim_start_matches(['\\', '/']).trim();
+    Some(if name.is_empty() { "MSSQLLocalDB".to_string() } else { name.to_string() })
+}
+
 pub struct SqlServerProvider {
     config: ConnectionConfig,
     tunnel: Option<TunnelManager>,
@@ -102,14 +128,10 @@ impl SqlServerProvider {
         }
     }
 
-    async fn connect(&self, database: &str, cancel: &CancellationToken) -> Result<Client<Compat<TcpStream>>> {
+    async fn connect(&self, database: &str, cancel: &CancellationToken) -> Result<SqlClient> {
         let config = self.tiberius_config(database).await?;
         let timeout = Duration::from_secs(self.config.connection_timeout.max(1) as u64);
-        let connecting = async {
-            let tcp = TcpStream::connect_named(&config).await.map_err(|e| DataError::Connect(describe(&e)))?;
-            tcp.set_nodelay(true).ok();
-            Client::connect(config, tcp.compat_write()).await.map_err(|e| DataError::Connect(describe(&e)))
-        };
+        let connecting = self.open_stream(config);
         tokio::select! {
             _ = cancel.cancelled() => Err(DataError::Connect("Cancelled.".into())),
             r = tokio::time::timeout(timeout, connecting) => match r {
@@ -117,6 +139,58 @@ impl SqlServerProvider {
                 Err(_) => Err(DataError::Connect(format!("Timed out connecting after {}s.", timeout.as_secs()))),
             },
         }
+    }
+
+    /// TCP first (through the SQL Browser for named instances); for a local server on Windows,
+    /// fall back to the instance's named pipe, which is what dev installs usually listen on.
+    /// `(localdb)\Name` goes straight to LocalDB's pipe.
+    async fn open_stream(&self, config: Config) -> Result<SqlClient> {
+        let (host, port, instance) = parse_address(&self.config.address, &self.config.port);
+        let through_tunnel = self.tunnel.is_some();
+        let _ = through_tunnel;
+
+        #[cfg(windows)]
+        if let (false, Some(name)) = (through_tunnel, localdb_instance(&self.config.address)) {
+            let pipe = pipes::localdb_pipe(&name).await?;
+            return pipes::connect_pipe(config, &pipe).await.map_err(|e| DataError::Connect(format!("LocalDB instance {name} ({pipe}): {e}")));
+        }
+
+        let tcp_result = async {
+            let tcp = TcpStream::connect_named(&config).await.map_err(|e| describe(&e))?;
+            tcp.set_nodelay(true).ok();
+            let boxed: Box<dyn Rw> = Box::new(tcp);
+            Client::connect(config.clone(), boxed.compat_write()).await.map_err(|e| describe(&e))
+        }
+        .await;
+        let tcp_error = match tcp_result {
+            Ok(c) => return Ok(c),
+            Err(e) => e,
+        };
+
+        let endpoint = match (&instance, port) {
+            (Some(i), _) => format!("{host}\\{i}"),
+            (None, p) => format!("{host}:{}", p.unwrap_or(1433)),
+        };
+        #[cfg(windows)]
+        if !through_tunnel && is_local_host(&host) {
+            let mut tried = vec![format!("TCP {endpoint}: {tcp_error}")];
+            let candidates: Vec<String> = match &instance {
+                Some(i) => vec![format!(r"\\.\pipe\MSSQL${i}\sql\query")],
+                None => vec![r"\\.\pipe\sql\query".to_string(), r"\\.\pipe\MSSQL$SQLEXPRESS\sql\query".to_string()],
+            };
+            for pipe in candidates {
+                match pipes::connect_pipe(config.clone(), &pipe).await {
+                    Ok(c) => return Ok(c),
+                    Err(e) => tried.push(format!("named pipe {pipe}: {e}")),
+                }
+            }
+            return Err(DataError::Connect(format!(
+                "Could not reach the local SQL Server. Tried {}. Check that the instance is running, and either enable TCP/IP in SQL Server Configuration Manager or connect as host\\INSTANCE.",
+                tried.join("; ")
+            )));
+        }
+        let _ = is_local_host; // keep the helper used on every platform
+        Err(DataError::Connect(format!("{tcp_error} ({endpoint})")))
     }
 
     /// An ADO.NET-style connection string for SqlPackage, pointing at the tunnel when there is one.
@@ -195,6 +269,61 @@ async fn azure_token() -> Result<String> {
         return Err(DataError::Connect("Azure CLI returned an empty token; run `az login`.".into()));
     }
     Ok(token)
+}
+
+#[cfg(windows)]
+mod pipes {
+    use super::{describe, Rw, SqlClient};
+    use crate::{DataError, Result};
+    use std::time::Duration;
+    use tiberius::{Client, Config};
+    use tokio::net::windows::named_pipe::ClientOptions;
+    use tokio_util::compat::TokioAsyncWriteCompatExt;
+
+    const ERROR_PIPE_BUSY: i32 = 231;
+
+    pub async fn connect_pipe(config: Config, path: &str) -> std::result::Result<SqlClient, String> {
+        // The server's pipe may be momentarily busy while another client connects.
+        let pipe = loop {
+            match ClientOptions::new().open(path) {
+                Ok(p) => break p,
+                Err(e) if e.raw_os_error() == Some(ERROR_PIPE_BUSY) => tokio::time::sleep(Duration::from_millis(50)).await,
+                Err(e) => return Err(e.to_string()),
+            }
+        };
+        let boxed: Box<dyn Rw> = Box::new(pipe);
+        Client::connect(config, boxed.compat_write()).await.map_err(|e| describe(&e))
+    }
+
+    /// Start the LocalDB instance if needed and return its pipe (`sqllocaldb info <name>`).
+    pub async fn localdb_pipe(name: &str) -> Result<String> {
+        let run = |args: &[&str]| {
+            let mut c = tokio::process::Command::new("sqllocaldb");
+            c.args(args);
+            use std::os::windows::process::CommandExt;
+            c.creation_flags(0x0800_0000);
+            c.output()
+        };
+        let parse = |out: &std::process::Output| {
+            String::from_utf8_lossy(&out.stdout)
+                .lines()
+                .find_map(|l| l.trim().strip_prefix("Instance pipe name:").map(|p| p.trim().trim_start_matches("np:").to_string()))
+                .filter(|p| !p.is_empty())
+        };
+        let info = run(&["info", name]).await.map_err(|e| DataError::Connect(format!("Couldn't run sqllocaldb: {e}. Is SQL Server LocalDB installed?")))?;
+        if !info.status.success() {
+            return Err(DataError::Connect(format!("LocalDB instance '{name}' not found: {}", String::from_utf8_lossy(&info.stderr).trim())));
+        }
+        if let Some(p) = parse(&info) {
+            return Ok(p);
+        }
+        let started = run(&["start", name]).await.map_err(|e| DataError::Connect(e.to_string()))?;
+        if !started.status.success() {
+            return Err(DataError::Connect(format!("Couldn't start LocalDB instance '{name}': {}", String::from_utf8_lossy(&started.stderr).trim())));
+        }
+        let info = run(&["info", name]).await.map_err(|e| DataError::Connect(e.to_string()))?;
+        parse(&info).ok_or_else(|| DataError::Connect(format!("LocalDB instance '{name}' has no pipe name; is it running?")))
+    }
 }
 
 fn describe(e: &tiberius::error::Error) -> String {
@@ -571,6 +700,17 @@ mod tests {
         assert_eq!(parse_address("host:1500", ""), ("host".into(), Some(1500), None));
         assert_eq!(parse_address("host\\SQLEXPRESS", ""), ("host".into(), None, Some("SQLEXPRESS".into())));
         assert_eq!(parse_address("host", ""), ("host".into(), None, None));
+    }
+
+    #[test]
+    fn local_hosts_and_localdb() {
+        assert!(is_local_host("localhost"));
+        assert!(is_local_host("."));
+        assert!(is_local_host("(local)"));
+        assert!(!is_local_host("db.example.com"));
+        assert_eq!(localdb_instance("(localdb)\\MSSQLLocalDB").as_deref(), Some("MSSQLLocalDB"));
+        assert_eq!(localdb_instance("(LocalDB)").as_deref(), Some("MSSQLLocalDB"));
+        assert!(localdb_instance("localhost").is_none());
     }
 
     #[test]
