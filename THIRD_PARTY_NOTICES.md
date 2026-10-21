@@ -315,7 +315,7 @@ Linked into the desktop app. Licenses: MIT OR Apache-2.0 (209), Apache-2.0 OR MI
 | [ring](https://github.com/briansmith/ring) | 0.17.14 | Apache-2.0 AND ISC |
 | [rsa](https://github.com/RustCrypto/RSA) | 0.10.0-rc.18 | MIT OR Apache-2.0 |
 | [rusqlite](https://github.com/rusqlite/rusqlite) | 0.40.2 | MIT |
-| [russh](https://github.com/warp-tech/russh) | 0.63.3 | Apache-2.0 |
+| [russh](https://github.com/warp-tech/russh) | 0.64.1 | Apache-2.0 |
 | [russh-cryptovec](https://github.com/warp-tech/russh) | 0.62.0 | Apache-2.0 |
 | [russh-util](https://github.com/warp-tech/russh) | 0.52.0 | Apache-2.0 |
 | [rust_decimal](https://github.com/paupino/rust-decimal) | 1.43.0 | MIT |
