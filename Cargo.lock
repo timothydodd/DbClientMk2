@@ -1088,7 +1088,7 @@ name = "dbclient-data"
 version = "1.1.1"
 dependencies = [
  "async-trait",
- "base64 0.22.1",
+ "base64 0.23.1",
  "chrono",
  "dbclient-core",
  "futures",
@@ -1129,7 +1129,7 @@ name = "dbclient-store"
 version = "1.1.1"
 dependencies = [
  "aes-gcm",
- "base64 0.22.1",
+ "base64 0.23.1",
  "chrono",
  "dbclient-core",
  "pbkdf2",
