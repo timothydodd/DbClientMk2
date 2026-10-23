@@ -42,6 +42,35 @@ fn localdb_instance(address: &str) -> Option<String> {
 pub struct SqlServerProvider {
     config: ConnectionConfig,
     tunnel: Option<TunnelManager>,
+    /// The named pipe that last worked, so later queries skip the refused TCP attempt.
+    #[cfg_attr(not(windows), allow(dead_code))]
+    known_pipe: std::sync::Mutex<Option<String>>,
+}
+
+/// How a connection was made and how long each phase took; shown with the query's messages when
+/// connecting dominates the run time.
+#[derive(Debug, Default, Clone)]
+pub struct ConnectReport {
+    /// `TCP host:port` or `named pipe \\.\pipe\...`.
+    pub transport: String,
+    /// Time to open the socket / pipe.
+    pub open_ms: u128,
+    /// Time for the TDS prelogin, TLS and login handshake.
+    pub handshake_ms: u128,
+    /// Endpoints tried before this one, with how long each took to fail.
+    pub failed: Vec<String>,
+    /// Wall time of the whole attempt, failed endpoints included.
+    pub total_ms: u128,
+}
+
+impl ConnectReport {
+    pub fn describe(&self) -> String {
+        let mut text = format!("Connected in {} ms over {}: open {} ms, login {} ms", self.total_ms, self.transport, self.open_ms, self.handshake_ms);
+        if !self.failed.is_empty() {
+            text.push_str(&format!(" (first tried {})", self.failed.join("; ")));
+        }
+        text
+    }
 }
 
 /// (host, port, instance): `host\INSTANCE`, `host,port` and `host:port` forms are all accepted.
@@ -68,7 +97,7 @@ fn parse_address(address: &str, port_field: &str) -> (String, Option<u16>, Optio
 
 impl SqlServerProvider {
     pub fn new(config: ConnectionConfig, tunnel: Option<TunnelManager>) -> Self {
-        Self { config, tunnel }
+        Self { config, tunnel, known_pipe: std::sync::Mutex::new(None) }
     }
 
     async fn endpoint(&self) -> Result<(String, Option<u16>, Option<String>)> {
@@ -129,13 +158,21 @@ impl SqlServerProvider {
     }
 
     async fn connect(&self, database: &str, cancel: &CancellationToken) -> Result<SqlClient> {
+        self.connect_reporting(database, cancel).await.map(|(c, _)| c)
+    }
+
+    async fn connect_reporting(&self, database: &str, cancel: &CancellationToken) -> Result<(SqlClient, ConnectReport)> {
         let config = self.tiberius_config(database).await?;
         let timeout = Duration::from_secs(self.config.connection_timeout.max(1) as u64);
+        let started = std::time::Instant::now();
         let connecting = self.open_stream(config);
         tokio::select! {
             _ = cancel.cancelled() => Err(DataError::Connect("Cancelled.".into())),
             r = tokio::time::timeout(timeout, connecting) => match r {
-                Ok(r) => r,
+                Ok(r) => r.map(|(client, mut report)| {
+                    report.total_ms = started.elapsed().as_millis();
+                    (client, report)
+                }),
                 Err(_) => Err(DataError::Connect(format!("Timed out connecting after {}s.", timeout.as_secs()))),
             },
         }
@@ -143,53 +180,94 @@ impl SqlServerProvider {
 
     /// TCP first (through the SQL Browser for named instances); for a local server on Windows,
     /// fall back to the instance's named pipe, which is what dev installs usually listen on.
-    /// `(localdb)\Name` goes straight to LocalDB's pipe.
-    async fn open_stream(&self, config: Config) -> Result<SqlClient> {
+    /// `(localdb)\Name` goes straight to LocalDB's pipe. A pipe that worked is remembered and
+    /// tried first next time, so every query doesn't pay for the refused TCP attempt.
+    async fn open_stream(&self, config: Config) -> Result<(SqlClient, ConnectReport)> {
         let (host, port, instance) = parse_address(&self.config.address, &self.config.port);
         let through_tunnel = self.tunnel.is_some();
         let _ = through_tunnel;
+        let mut failed: Vec<String> = Vec::new();
 
         #[cfg(windows)]
         if let (false, Some(name)) = (through_tunnel, localdb_instance(&self.config.address)) {
+            let started = std::time::Instant::now();
             let pipe = pipes::localdb_pipe(&name).await?;
-            return pipes::connect_pipe(config, &pipe).await.map_err(|e| DataError::Connect(format!("LocalDB instance {name} ({pipe}): {e}")));
+            let lookup_ms = started.elapsed().as_millis();
+            return pipes::connect_pipe(config, &pipe).await.map(|(c, mut r)| { r.open_ms += lookup_ms; (c, r) })
+                .map_err(|e| DataError::Connect(format!("LocalDB instance {name} ({pipe}): {e}")));
         }
 
-        let tcp_result = async {
-            let tcp = TcpStream::connect_named(&config).await.map_err(|e| describe(&e))?;
-            tcp.set_nodelay(true).ok();
-            let boxed: Box<dyn Rw> = Box::new(tcp);
-            Client::connect(config.clone(), boxed.compat_write()).await.map_err(|e| describe(&e))
+        // Taken out of the lock before awaiting: a guard held across the connect would block the
+        // reset below and make this future !Send.
+        #[cfg(windows)]
+        let known_pipe = self.known_pipe.lock().ok().and_then(|p| p.clone());
+        #[cfg(windows)]
+        if let Some(pipe) = known_pipe {
+            match pipes::connect_pipe(config.clone(), &pipe).await {
+                Ok(ok) => return Ok(ok),
+                Err(e) => {
+                    // The server may have restarted with TCP enabled, or the pipe renamed: start over.
+                    if let Ok(mut p) = self.known_pipe.lock() {
+                        *p = None;
+                    }
+                    failed.push(format!("named pipe {pipe}: {e}"));
+                }
+            }
         }
-        .await;
-        let tcp_error = match tcp_result {
-            Ok(c) => return Ok(c),
-            Err(e) => e,
-        };
 
         let endpoint = match (&instance, port) {
             (Some(i), _) => format!("{host}\\{i}"),
             (None, p) => format!("{host}:{}", p.unwrap_or(1433)),
         };
+        let started = std::time::Instant::now();
+        let tcp_result = async {
+            let tcp = TcpStream::connect_named(&config).await.map_err(|e| describe(&e))?;
+            tcp.set_nodelay(true).ok();
+            let open_ms = started.elapsed().as_millis();
+            let boxed: Box<dyn Rw> = Box::new(tcp);
+            let client = Client::connect(config.clone(), boxed.compat_write()).await.map_err(|e| describe(&e))?;
+            let handshake_ms = started.elapsed().as_millis() - open_ms;
+            Ok::<_, String>((client, open_ms, handshake_ms))
+        }
+        .await;
+        let tcp_error = match tcp_result {
+            Ok((client, open_ms, handshake_ms)) => {
+                #[cfg(windows)]
+                if let Ok(mut p) = self.known_pipe.lock() {
+                    *p = None;
+                }
+                return Ok((client, ConnectReport { transport: format!("TCP {endpoint}"), open_ms, handshake_ms, failed, total_ms: 0 }));
+            }
+            Err(e) => e,
+        };
+        failed.push(format!("TCP {endpoint}: {tcp_error} ({} ms)", started.elapsed().as_millis()));
+
         #[cfg(windows)]
         if !through_tunnel && is_local_host(&host) {
-            let mut tried = vec![format!("TCP {endpoint}: {tcp_error}")];
             let candidates: Vec<String> = match &instance {
                 Some(i) => vec![format!(r"\\.\pipe\MSSQL${i}\sql\query")],
                 None => vec![r"\\.\pipe\sql\query".to_string(), r"\\.\pipe\MSSQL$SQLEXPRESS\sql\query".to_string()],
             };
             for pipe in candidates {
+                let started = std::time::Instant::now();
                 match pipes::connect_pipe(config.clone(), &pipe).await {
-                    Ok(c) => return Ok(c),
-                    Err(e) => tried.push(format!("named pipe {pipe}: {e}")),
+                    Ok((client, mut report)) => {
+                        if let Ok(mut p) = self.known_pipe.lock() {
+                            *p = Some(pipe);
+                        }
+                        report.failed = failed;
+                        return Ok((client, report));
+                    }
+                    Err(e) => failed.push(format!("named pipe {pipe}: {e} ({} ms)", started.elapsed().as_millis())),
                 }
             }
             return Err(DataError::Connect(format!(
                 "Could not reach the local SQL Server. Tried {}. Check that the instance is running, and either enable TCP/IP in SQL Server Configuration Manager or connect as host\\INSTANCE.",
-                tried.join("; ")
+                failed.join("; ")
             )));
         }
         let _ = is_local_host; // keep the helper used on every platform
+        let _ = &failed;
         Err(DataError::Connect(format!("{tcp_error} ({endpoint})")))
     }
 
@@ -273,16 +351,17 @@ async fn azure_token() -> Result<String> {
 
 #[cfg(windows)]
 mod pipes {
-    use super::{describe, Rw, SqlClient};
+    use super::{describe, ConnectReport, Rw, SqlClient};
     use crate::{DataError, Result};
-    use std::time::Duration;
+    use std::time::{Duration, Instant};
     use tiberius::{Client, Config};
     use tokio::net::windows::named_pipe::ClientOptions;
     use tokio_util::compat::TokioAsyncWriteCompatExt;
 
     const ERROR_PIPE_BUSY: i32 = 231;
 
-    pub async fn connect_pipe(config: Config, path: &str) -> std::result::Result<SqlClient, String> {
+    pub async fn connect_pipe(config: Config, path: &str) -> std::result::Result<(SqlClient, ConnectReport), String> {
+        let started = Instant::now();
         // The server's pipe may be momentarily busy while another client connects.
         let pipe = loop {
             match ClientOptions::new().open(path) {
@@ -291,8 +370,11 @@ mod pipes {
                 Err(e) => return Err(e.to_string()),
             }
         };
+        let open_ms = started.elapsed().as_millis();
         let boxed: Box<dyn Rw> = Box::new(pipe);
-        Client::connect(config, boxed.compat_write()).await.map_err(|e| describe(&e))
+        let client = Client::connect(config, boxed.compat_write()).await.map_err(|e| describe(&e))?;
+        let handshake_ms = started.elapsed().as_millis() - open_ms;
+        Ok((client, ConnectReport { transport: format!("named pipe {path}"), open_ms, handshake_ms, failed: Vec::new(), total_ms: 0 }))
     }
 
     /// Start the LocalDB instance if needed and return its pipe (`sqllocaldb info <name>`).
@@ -587,7 +669,8 @@ impl DbProvider for SqlServerProvider {
         let start = std::time::Instant::now();
         let mut result = QueryResult::default();
         let sink: MessageSink = Default::default();
-        let work = messages::with_sink(sink.clone(), run_batch(self, database, sql, max_rows, &cancel, &mut result));
+        let mut connect_notes = Vec::new();
+        let work = messages::with_sink(sink.clone(), run_batch(self, database, sql, max_rows, &cancel, &mut result, &mut connect_notes));
         tokio::select! {
             _ = cancel.cancelled() => {
                 result.cancelled = true;
@@ -597,6 +680,7 @@ impl DbProvider for SqlServerProvider {
             _ = work => {}
         }
         result.messages = sink.lock().map(|m| m.clone()).unwrap_or_default();
+        result.messages.splice(0..0, connect_notes);
         result.execution_ms = elapsed_ms(start);
         result
     }
@@ -620,14 +704,20 @@ impl DbProvider for SqlServerProvider {
     }
 }
 
-async fn run_batch(p: &SqlServerProvider, database: &str, sql: &str, max_rows: u32, cancel: &CancellationToken, result: &mut QueryResult) {
-    let mut client = match p.connect(database, cancel).await {
+/// Connects at least this slow get a note in the query's messages saying where the time went.
+const SLOW_CONNECT_MS: u128 = 500;
+
+async fn run_batch(p: &SqlServerProvider, database: &str, sql: &str, max_rows: u32, cancel: &CancellationToken, result: &mut QueryResult, connect_notes: &mut Vec<String>) {
+    let (mut client, report) = match p.connect_reporting(database, cancel).await {
         Ok(c) => c,
         Err(e) => {
             result.error_message = Some(e.to_string());
             return;
         }
     };
+    if report.total_ms >= SLOW_CONNECT_MS {
+        connect_notes.push(report.describe());
+    }
     let mut truncated = false;
     {
         let mut stream = match client.simple_query(sql).await {
@@ -676,7 +766,10 @@ async fn run_batch(p: &SqlServerProvider, database: &str, sql: &str, max_rows: u
         }
     }
     if !truncated {
-        let _ = client.close().await;
+        // The logout round trip isn't part of the query; don't make the result wait for it.
+        tokio::spawn(async move {
+            let _ = tokio::time::timeout(Duration::from_secs(5), client.close()).await;
+        });
     }
 }
 
