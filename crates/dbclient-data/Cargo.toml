@@ -19,7 +19,7 @@ chrono = { workspace = true }
 tiberius = { version = "0.13", default-features = false, features = ["tds80", "native-tls", "chrono", "rust_decimal", "sql-browser-tokio"] }
 # MySQL / MariaDB over rustls with the ring provider.
 mysql_async = { version = "0.37", default-features = false, features = ["default-rustls-ring", "minimal-rust"] }
-rusqlite = { version = "0.40.2", features = ["bundled", "column_decltype"] }
+rusqlite = { version = "0.41.0", features = ["bundled", "column_decltype"] }
 russh = { version = "0.64.1", default-features = false, features = ["ring", "flate2", "rsa"] }
 sha2 = "0.11"
 md-5 = "0.11"
