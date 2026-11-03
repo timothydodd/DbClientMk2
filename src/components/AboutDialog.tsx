@@ -6,7 +6,7 @@ import { SHORTCUTS } from "../lib/shortcuts";
 import type { AppInfo } from "../lib/types";
 import { toast } from "../stores/toast";
 import { useUiStore } from "../stores/ui";
-import { REPO_URL } from "./MenuBar";
+import { REPO_URL } from "../hooks/useAppMenus";
 import { Kbd, Modal } from "./ui";
 
 export default function AboutDialog() {

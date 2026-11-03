@@ -8,6 +8,7 @@ import { toast } from "../stores/toast";
 import { useUiStore } from "../stores/ui";
 import { useWorkspace } from "../stores/workspace";
 import { Checkbox, Field, Modal, Spinner } from "./ui";
+import { isWindows } from "./WindowControls";
 
 function SecretInput({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder?: string }) {
   const [show, setShow] = useState(false);
@@ -141,7 +142,8 @@ function Form({ initial, onClose }: { initial: ConnectionConfig; onClose: () => 
                 <select className="field w-full" value={c.authMode} onChange={(e) => set({ authMode: e.target.value as SqlAuthMode })}>
                   <option value="sqlLogin">SQL Login</option>
                   <option value="azureDefault">Azure (use az login)</option>
-                  <option value="windows">Windows Authentication</option>
+                  {/* Integrated auth needs Windows; still listed elsewhere if a connection already uses it. */}
+                  {(isWindows || c.authMode === "windows") && <option value="windows">Windows Authentication</option>}
                 </select>
               </Field>
             )}

@@ -141,11 +141,24 @@ fn machine_id() -> Vec<u8> {
     if let Ok(s) = std::fs::read_to_string("/etc/machine-id") {
         return s.trim().as_bytes().to_vec();
     }
-    if let Ok(b) = std::fs::read("/var/db/SystemKey") {
-        return b;
+    #[cfg(target_os = "macos")]
+    if let Some(uuid) = mac_platform_uuid() {
+        return uuid.into_bytes();
     }
     let host = std::env::var("COMPUTERNAME").or_else(|_| std::env::var("HOSTNAME")).unwrap_or_else(|_| "localhost".into());
     format!("{host}:{}", user_name()).into_bytes()
+}
+
+/// The Mac's hardware UUID (the machine id there: `/etc/machine-id` doesn't exist and
+/// `/var/db/SystemKey` is root-only, and GUI apps get no `HOSTNAME`, so without this every Mac
+/// would derive the same key from "localhost").
+#[cfg(target_os = "macos")]
+fn mac_platform_uuid() -> Option<String> {
+    let out = std::process::Command::new("/usr/sbin/ioreg").args(["-rd1", "-c", "IOPlatformExpertDevice"]).output().ok()?;
+    let text = String::from_utf8_lossy(&out.stdout);
+    let line = text.lines().find(|l| l.contains("\"IOPlatformUUID\""))?;
+    let uuid = line.rsplit('"').nth(1)?.trim();
+    (!uuid.is_empty()).then(|| uuid.to_string())
 }
 
 #[cfg(windows)]

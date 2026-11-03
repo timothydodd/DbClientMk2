@@ -40,6 +40,11 @@ prompt. Release builds are code-signed; check downloads against `SHA256SUMS.txt`
 Needs Windows 10 1809 or later. The installer adds the Microsoft Edge WebView2 runtime if it's
 missing.
 
+**macOS (Apple Silicon):** download `dbclient-<version>-macos-arm64.dmg` and drag dbclient to
+Applications. The Mac build isn't notarized yet, so clear the download quarantine once:
+`xattr -dr com.apple.quarantine /Applications/dbclient.app`. Windows Authentication and LocalDB
+are Windows-only.
+
 ### Azure SQL
 
 Sign in with the Azure CLI, then pick **Authentication: Azure (use az login)** in the connection

@@ -3,6 +3,7 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { Copy, Minus, Square, X } from "lucide-react";
 
 export const isWindows = navigator.userAgent.includes("Windows");
+export const isMac = navigator.userAgent.includes("Mac");
 
 /** Min/max/close buttons for the frameless window (Windows only). */
 export default function WindowControls() {

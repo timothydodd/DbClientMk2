@@ -9,6 +9,17 @@ features follow the earlier Avalonia app in `../dbclient`, which this replaces.
 > **Run dev/prod builds from Windows, not WSL.** `npm run tauri dev` / `tauri build` need the MSVC
 > toolchain + Windows Node. WSL is for editing and checks only.
 
+**On macOS (full builds work natively):**
+```bash
+npm install
+npm run tauri dev
+cargo test -p dbclient-core -p dbclient-store -p dbclient-data -p dbclient-engine
+npx tauri build --bundles app,dmg   # target/release/bundle/{macos,dmg}/
+```
+CI builds an Apple Silicon `.dmg` in the `macos` job of `.github/workflows/build.yml`. It is
+ad-hoc signed, not notarized: a downloaded copy needs
+`xattr -dr com.apple.quarantine "/Applications/dbclient.app"` before it opens.
+
 **In WSL (checks only):**
 ```bash
 export CARGO_TARGET_DIR=$HOME/.cargo-target/dbclient
@@ -37,7 +48,8 @@ crates/dbclient-data     DbProvider trait + drivers: sqlserver.rs (tiberius), my
                          (mysql_async), sqlite.rs (rusqlite), ssh.rs (russh tunnel, TOFU host
                          keys), messages.rs (captures SQL Server PRINT via tracing)
 crates/dbclient-store    ~/.dbclient: state.rs (state.json, connections/*.json, history.json),
-                         secrets.rs (DPAPI / AES-GCM), logger.rs, paths.rs
+                         secrets.rs (DPAPI / AES-GCM;
+                         on macOS the AES key comes from the hardware UUID), logger.rs, paths.rs
 crates/dbclient-engine   Workspace: sessions per connection, schema cache + IntelliSense,
                          execute/cancel by job id, host-key prompts, SqlPackage runner
 src-tauri                thin: commands.rs wraps the engine; lib.rs forwards EventSink to events
