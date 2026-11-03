@@ -35,8 +35,13 @@ npx vite build
   `npm install` again on Windows before building.
 - Vite's file watcher doesn't see edits on `/mnt/f` from WSL. Restart the dev server to pick them up.
 - TLS/crypto: MySQL and SSH use **rustls with ring**; SQL Server uses the platform TLS (schannel on
-  Windows, OpenSSL only for Linux dev checks). Don't let `aws-lc-rs` into the tree (check with
-  `cargo tree -i aws-lc-rs`): it needs cmake/nasm on Windows.
+  Windows, OpenSSL only for Linux dev checks) except on **macOS, where tiberius uses rustls**:
+  native-tls there is Secure Transport (TLS 1.2 max) and Azure SQL servers requiring TLS 1.3
+  fail the handshake. Keep `aws-lc-rs` out of the Windows/Linux trees (check with
+  `cargo tree --target x86_64-pc-windows-msvc -i aws-lc-rs`): it needs cmake/nasm on Windows.
+  It is expected on macOS only (pulled in by tiberius' rustls feature).
+- macOS GUI launches get launchd's minimal PATH; `main.rs` appends Homebrew, `/usr/local/bin`,
+  `~/.dotnet/tools` and `~/.local/bin` so `az` and `sqlpackage` are found.
 
 ## Architecture
 
