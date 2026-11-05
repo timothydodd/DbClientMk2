@@ -14,6 +14,7 @@ import type {
   TestOutcome,
   UpdateScript,
   UpdateScriptRequest,
+  XlsxSheet,
 } from "./types";
 
 // --- app state / saved connections ---
@@ -58,6 +59,7 @@ export const cancelSqlpackage = (jobId: string) => invoke<void>("cancel_sqlpacka
 // --- files / misc ---
 export const readTextFile = (path: string) => invoke<string>("read_text_file", { path });
 export const writeTextFile = (path: string, contents: string) => invoke<void>("write_text_file", { path, contents });
+export const exportXlsx = (path: string, sheets: XlsxSheet[]) => invoke<void>("export_xlsx", { path, sheets });
 export const fileExists = (path: string) => invoke<boolean>("file_exists", { path });
 export const appInfo = () => invoke<AppInfo>("app_info");
 export const formatSql = (sql: string) => invoke<string>("format_sql", { sql });

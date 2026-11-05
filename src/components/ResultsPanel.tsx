@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AlertTriangle, Check, ChevronDown, ChevronRight, Copy, FileDown, Square, X } from "lucide-react";
+import { AlertTriangle, Check, ChevronDown, ChevronRight, Copy, CopyPlus, FileDown, FileSpreadsheet, Square, X } from "lucide-react";
 import { copyText } from "../lib/clipboard";
-import { saveTextAs } from "../lib/files";
+import { saveTextAs, saveXlsxAs } from "../lib/files";
 import { errorMessage } from "../lib/format";
 import * as ipc from "../lib/ipc";
 import * as sql from "../lib/sql";
-import type { Cell, ResultSet } from "../lib/types";
+import type { Cell, ResultSet, XlsxSheet } from "../lib/types";
 import { toast } from "../stores/toast";
 import { useUiStore } from "../stores/ui";
 import { useWorkspace, type ConnectionTab, type QueryTab } from "../stores/workspace";
@@ -158,6 +158,20 @@ export default function ResultsPanel({ conn, tab }: { conn: ConnectionTab; tab: 
       ws.showMessage(conn.config.id, tab.id, `Export failed: ${errorMessage(e)}`, "error");
     }
   };
+  const sheet = (set: ResultSet, i: number, rows: Cell[][]): XlsxSheet => ({ name: `Result ${i + 1}`, columnNames: set.columnNames, columnTypes: set.columnTypes, rows });
+  const exportXlsx = async (all: boolean) => {
+    if (!rs || !result) return;
+    const sheets = all ? result.data.map((d, i) => sheet(d, i, d.rows)) : [sheet(rs, tab.selectedResultIndex, filtered.map((r) => r.cells))];
+    try {
+      const p = await saveXlsxAs(all ? "Export All Results to Excel" : "Export to Excel", "export.xlsx", sheets);
+      if (p) toast.success(`Exported ${p}`);
+    } catch (e) {
+      ws.showMessage(conn.config.id, tab.id, `Export failed: ${errorMessage(e)}`, "error");
+    }
+  };
+  const multiple = (result?.data.length ?? 0) > 1;
+  const copyAllResults = () =>
+    result && void copyText(sql.tsvMany(result.data.map((d) => ({ headers: d.columnNames, rows: d.rows })))).then((ok) => ok && toast.success(`Copied ${result.data.length} results`));
   const copyAll = () => rs && void copyText(sql.tsv(rs.columnNames, filtered.map((r) => r.cells), true)).then((ok) => ok && toast.success("Copied"));
 
   const contextMenu = (x: number, y: number, selectedRows: GridRow[], cell: { row: number; col: number } | null) => {
@@ -170,6 +184,7 @@ export default function ResultsPanel({ conn, tab }: { conn: ConnectionTab; tab: 
       },
       { label: "Copy Row(s)", shortcut: "Ctrl+Shift+C", disabled: !selRows.length, onSelect: () => void copyText(sql.tsv(rs.columnNames, selRows.map((r) => r.cells), true)) },
       { label: "Copy All Rows", onSelect: copyAll },
+      ...(multiple ? [{ label: "Copy All Results", onSelect: copyAllResults }] : []),
       { separator: true, label: "" },
       {
         label: "Copy as INSERT",
@@ -178,6 +193,8 @@ export default function ResultsPanel({ conn, tab }: { conn: ConnectionTab; tab: 
       { separator: true, label: "" },
       { label: "Export to CSV...", onSelect: () => void exportCsv() },
       { label: "Export to JSON...", onSelect: () => void exportJson() },
+      { label: "Export to Excel...", onSelect: () => void exportXlsx(false) },
+      ...(multiple ? [{ label: "Export All Results to Excel...", onSelect: () => void exportXlsx(true) }] : []),
     ]);
   };
 
@@ -207,6 +224,9 @@ export default function ResultsPanel({ conn, tab }: { conn: ConnectionTab; tab: 
         <button className="btn-icon" title="Export CSV" disabled={!rs} onClick={() => void exportCsv()}>
           <FileDown size={12} />
         </button>
+        <button className="btn-icon" title={multiple ? "Export All Results to Excel (one sheet each)" : "Export to Excel"} disabled={!rs} onClick={() => void exportXlsx(multiple)}>
+          <FileSpreadsheet size={12} />
+        </button>
         {tab.executing && (
           <button className="btn-icon text-critical" title="Cancel Query (Escape)" onClick={() => ws.cancel(tab.id)}>
             <Square size={12} />
@@ -221,6 +241,13 @@ export default function ResultsPanel({ conn, tab }: { conn: ConnectionTab; tab: 
               Result {i + 1}
             </button>
           ))}
+          <span className="flex-1" />
+          <button className="btn-icon" title="Copy All Results" onClick={copyAllResults}>
+            <CopyPlus size={12} />
+          </button>
+          <button className="btn-icon" title="Export All Results to Excel (one sheet each)" onClick={() => void exportXlsx(true)}>
+            <FileSpreadsheet size={12} />
+          </button>
         </div>
       )}
 

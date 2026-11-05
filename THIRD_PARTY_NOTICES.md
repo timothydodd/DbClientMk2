@@ -45,9 +45,9 @@ repositories linked below.
 
 - The color palette is adapted from [Dracula](https://draculatheme.com) (MIT).
 
-## Rust crates (419)
+## Rust crates (427)
 
-Linked into the desktop app. Licenses: MIT OR Apache-2.0 (209), Apache-2.0 OR MIT (68), MIT (60), Unicode-3.0 (18), MIT/Apache-2.0 (16), Unlicense OR MIT (9), Apache-2.0 (6), BSD-3-Clause (5), MPL-2.0 (5), ISC (2), MIT OR Zlib OR Apache-2.0 (2), Unlicense/MIT (2), Zlib (2), (Apache-2.0 OR MIT) AND BSD-3-Clause (1), (MIT OR Apache-2.0) AND Unicode-3.0 (1), 0BSD OR MIT OR Apache-2.0 (1), Apache-2.0 / MIT (1), Apache-2.0 AND ISC (1), Apache-2.0 AND MIT (1), Apache-2.0 OR ISC OR MIT (1), Apache-2.0/MIT (1), BSD-2-Clause OR Apache-2.0 OR MIT (1), BSD-3-Clause AND MIT (1), BSD-3-Clause/MIT (1), CC0-1.0 OR MIT-0 OR Apache-2.0 (1), CDLA-Permissive-2.0 (1), MIT OR Apache-2.0 OR Zlib (1), Zlib OR Apache-2.0 OR MIT (1).
+Linked into the desktop app. Licenses: MIT OR Apache-2.0 (212), Apache-2.0 OR MIT (68), MIT (61), Unicode-3.0 (18), MIT/Apache-2.0 (16), Unlicense OR MIT (9), Apache-2.0 (7), BSD-3-Clause (5), MPL-2.0 (5), Apache-2.0 OR ISC OR MIT (2), ISC (2), MIT OR Zlib OR Apache-2.0 (2), Unlicense/MIT (2), Zlib (2), (Apache-2.0 OR MIT) AND BSD-3-Clause (1), (MIT OR Apache-2.0) AND Unicode-3.0 (1), 0BSD OR MIT OR Apache-2.0 (1), Apache-2.0 / MIT (1), Apache-2.0 AND ISC (1), Apache-2.0 AND MIT (1), Apache-2.0/MIT (1), BSD-2-Clause OR Apache-2.0 OR MIT (1), BSD-3-Clause AND MIT (1), BSD-3-Clause/MIT (1), CC0-1.0 OR MIT-0 OR Apache-2.0 (1), CDLA-Permissive-2.0 (1), ISC AND (Apache-2.0 OR ISC) (1), ISC AND (Apache-2.0 OR ISC) AND Apache-2.0 AND MIT AND BSD-3-Clause AND (Apache-2.0 OR ISC OR MIT) AND (Apache-2.0 OR ISC OR MIT-0) (1), MIT OR Apache-2.0 OR Zlib (1), Zlib OR Apache-2.0 OR MIT (1).
 
 | Package | Version | License |
 | --- | --- | --- |
@@ -65,6 +65,8 @@ Linked into the desktop app. Licenses: MIT OR Apache-2.0 (209), Apache-2.0 OR MI
 | [async-native-tls](https://github.com/async-email/async-native-tls) | 0.6.0 | MIT/Apache-2.0 |
 | [async-trait](https://github.com/dtolnay/async-trait) | 0.1.92 | MIT OR Apache-2.0 |
 | [asynchronous-codec](https://github.com/mxinden/asynchronous-codec) | 0.7.0 | MIT |
+| [aws-lc-rs](https://github.com/aws/aws-lc-rs) | 1.19.0 | ISC AND (Apache-2.0 OR ISC) |
+| [aws-lc-sys](https://github.com/aws/aws-lc-rs) | 0.47.0 | ISC AND (Apache-2.0 OR ISC) AND Apache-2.0 AND MIT AND BSD-3-Clause AND (Apache-2.0 OR ISC OR MIT) AND (Apache-2.0 OR ISC OR MIT-0) |
 | [base16ct](https://github.com/RustCrypto/formats) | 1.0.0 | Apache-2.0 OR MIT |
 | [base64](https://github.com/alicemaz/rust-base64) | 0.10.1 | MIT/Apache-2.0 |
 | [base64](https://github.com/marshallpierce/rust-base64) | 0.22.1 | MIT OR Apache-2.0 |
@@ -86,6 +88,7 @@ Linked into the desktop app. Licenses: MIT OR Apache-2.0 (209), Apache-2.0 OR MI
 | [brotli-decompressor](https://github.com/dropbox/rust-brotli-decompressor) | 6.0.1 | BSD-3-Clause/MIT |
 | [bs58](https://github.com/Nullus157/bs58-rs) | 0.5.1 | MIT/Apache-2.0 |
 | [btoi](https://github.com/niklasf/rust-btoi) | 0.5.0 | MIT OR Apache-2.0 |
+| [bumpalo](https://github.com/fitzgen/bumpalo) | 3.20.3 | MIT OR Apache-2.0 |
 | [byteorder](https://github.com/BurntSushi/byteorder) | 1.5.0 | Unlicense OR MIT |
 | [bytes](https://github.com/tokio-rs/bytes) | 1.12.1 | MIT |
 | [camino](https://github.com/camino-rs/camino) | 1.2.6 | MIT OR Apache-2.0 |
@@ -319,8 +322,10 @@ Linked into the desktop app. Licenses: MIT OR Apache-2.0 (209), Apache-2.0 OR MI
 | [russh-cryptovec](https://github.com/warp-tech/russh) | 0.62.0 | Apache-2.0 |
 | [russh-util](https://github.com/warp-tech/russh) | 0.52.0 | Apache-2.0 |
 | [rust_decimal](https://github.com/paupino/rust-decimal) | 1.43.0 | MIT |
+| [rust_xlsxwriter](https://github.com/jmcnamara/rust_xlsxwriter) | 0.102.0 | MIT OR Apache-2.0 |
 | [rustc-hash](https://github.com/rust-lang/rustc-hash) | 2.1.3 | Apache-2.0 OR MIT |
 | [rustls](https://github.com/rustls/rustls) | 0.23.46 | Apache-2.0 OR ISC OR MIT |
+| [rustls-native-certs](https://github.com/rustls/rustls-native-certs) | 0.8.5 | Apache-2.0 OR ISC OR MIT |
 | [rustls-pki-types](https://github.com/rustls/pki-types) | 1.15.1 | MIT OR Apache-2.0 |
 | [rustls-webpki](https://github.com/rustls/webpki) | 0.103.16 | ISC |
 | [rustversion](https://github.com/dtolnay/rustversion) | 1.0.23 | MIT OR Apache-2.0 |
@@ -418,6 +423,7 @@ Linked into the desktop app. Licenses: MIT OR Apache-2.0 (209), Apache-2.0 OR MI
 | [tracing-subscriber](https://github.com/tokio-rs/tracing) | 0.3.23 | MIT |
 | [tray-icon](https://github.com/tauri-apps/tray-icon) | 0.25.1 | MIT OR Apache-2.0 |
 | [twox-hash](https://github.com/shepmaster/twox-hash) | 2.1.5 | MIT |
+| [typed-path](https://github.com/chipsenkbeil/typed-path) | 0.13.0 | MIT OR Apache-2.0 |
 | [typeid](https://github.com/dtolnay/typeid) | 1.0.3 | MIT OR Apache-2.0 |
 | [typenum](https://github.com/paholg/typenum) | 1.20.1 | MIT OR Apache-2.0 |
 | [unicode-ident](https://github.com/dtolnay/unicode-ident) | 1.0.27 | (MIT OR Apache-2.0) AND Unicode-3.0 |
@@ -468,8 +474,10 @@ Linked into the desktop app. Licenses: MIT OR Apache-2.0 (209), Apache-2.0 OR MI
 | [zerotrie](https://github.com/unicode-org/icu4x) | 0.2.5 | Unicode-3.0 |
 | [zerovec](https://github.com/unicode-org/icu4x) | 0.11.8 | Unicode-3.0 |
 | [zerovec-derive](https://github.com/unicode-org/icu4x) | 0.11.6 | Unicode-3.0 |
+| [zip](https://github.com/zip-rs/zip2) | 9.4.0 | MIT |
 | [zlib-rs](https://github.com/trifectatechfoundation/zlib-rs) | 0.6.8 | Zlib |
 | [zmij](https://github.com/dtolnay/zmij) | 1.0.23 | MIT |
+| [zopfli](https://github.com/zopfli-rs/zopfli) | 0.8.4 | Apache-2.0 |
 
 ## npm packages (31)
 

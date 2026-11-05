@@ -129,6 +129,14 @@ export interface ResultSet {
   truncated: boolean;
 }
 
+/** One worksheet for `export_xlsx` (mirrors `dbclient_core::export::XlsxSheet`). */
+export interface XlsxSheet {
+  name: string;
+  columnNames: string[];
+  columnTypes: (string | null)[];
+  rows: Cell[][];
+}
+
 export interface QueryResult {
   data: ResultSet[];
   affectedRows: number;

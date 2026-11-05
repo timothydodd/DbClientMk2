@@ -1,5 +1,6 @@
 import { open, save } from "@tauri-apps/plugin-dialog";
 import * as ipc from "./ipc";
+import type { XlsxSheet } from "./types";
 
 const SQL_FILTERS = [
   { name: "SQL files", extensions: ["sql"] },
@@ -20,6 +21,14 @@ export async function saveTextAs(title: string, suggested: string, filters: { na
   const path = await save({ title, defaultPath: suggested, filters });
   if (!path) return null;
   await ipc.writeTextFile(path, contents);
+  return path;
+}
+
+/** Ask where to save, then write the sheets as an .xlsx workbook. Returns the path, or null if cancelled. */
+export async function saveXlsxAs(title: string, suggested: string, sheets: XlsxSheet[]): Promise<string | null> {
+  const path = await save({ title, defaultPath: suggested, filters: [{ name: "Excel Workbook", extensions: ["xlsx"] }] });
+  if (!path) return null;
+  await ipc.exportXlsx(path, sheets);
   return path;
 }
 

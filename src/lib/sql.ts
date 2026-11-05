@@ -115,6 +115,11 @@ export function tsv(headers: string[], rows: Cell[][], withHeaders: boolean): st
   return out.join("\n") + "\n";
 }
 
+/** Several result sets as TSV blocks (each with its header row) separated by a blank line. */
+export function tsvMany(sets: { headers: string[]; rows: Cell[][] }[]): string {
+  return sets.map((s) => tsv(s.headers, s.rows, true)).join("\n");
+}
+
 function csvEscape(v: Cell): string {
   if (v === null) return "";
   return /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;

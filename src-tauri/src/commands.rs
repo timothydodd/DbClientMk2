@@ -170,6 +170,13 @@ pub async fn write_text_file(path: String, contents: String) -> CmdResult<()> {
     tokio::fs::write(&path, contents).await.map_err(|e| format!("Could not write {path}: {e}"))
 }
 
+/// Write result sets to an .xlsx workbook, one worksheet each.
+#[tauri::command]
+pub async fn export_xlsx(path: String, sheets: Vec<dbclient_core::export::XlsxSheet>) -> CmdResult<()> {
+    let bytes = tokio::task::spawn_blocking(move || dbclient_core::export::xlsx(&sheets)).await.map_err(|e| e.to_string())??;
+    tokio::fs::write(&path, bytes).await.map_err(|e| format!("Could not write {path}: {e}"))
+}
+
 #[tauri::command]
 pub fn file_exists(path: String) -> bool {
     std::path::Path::new(&path).is_file()

@@ -108,6 +108,7 @@ pub fn run() {
             commands::cancel_sqlpackage,
             commands::read_text_file,
             commands::write_text_file,
+            commands::export_xlsx,
             commands::file_exists,
             commands::app_info,
             commands::format_sql,
