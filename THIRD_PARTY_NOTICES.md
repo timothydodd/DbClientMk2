@@ -45,9 +45,9 @@ repositories linked below.
 
 - The color palette is adapted from [Dracula](https://draculatheme.com) (MIT).
 
-## Rust crates (427)
+## Rust crates (426)
 
-Linked into the desktop app. Licenses: MIT OR Apache-2.0 (212), Apache-2.0 OR MIT (68), MIT (61), Unicode-3.0 (18), MIT/Apache-2.0 (16), Unlicense OR MIT (9), Apache-2.0 (7), BSD-3-Clause (5), MPL-2.0 (5), Apache-2.0 OR ISC OR MIT (2), ISC (2), MIT OR Zlib OR Apache-2.0 (2), Unlicense/MIT (2), Zlib (2), (Apache-2.0 OR MIT) AND BSD-3-Clause (1), (MIT OR Apache-2.0) AND Unicode-3.0 (1), 0BSD OR MIT OR Apache-2.0 (1), Apache-2.0 / MIT (1), Apache-2.0 AND ISC (1), Apache-2.0 AND MIT (1), Apache-2.0/MIT (1), BSD-2-Clause OR Apache-2.0 OR MIT (1), BSD-3-Clause AND MIT (1), BSD-3-Clause/MIT (1), CC0-1.0 OR MIT-0 OR Apache-2.0 (1), CDLA-Permissive-2.0 (1), ISC AND (Apache-2.0 OR ISC) (1), ISC AND (Apache-2.0 OR ISC) AND Apache-2.0 AND MIT AND BSD-3-Clause AND (Apache-2.0 OR ISC OR MIT) AND (Apache-2.0 OR ISC OR MIT-0) (1), MIT OR Apache-2.0 OR Zlib (1), Zlib OR Apache-2.0 OR MIT (1).
+Linked into the desktop app. Licenses: MIT OR Apache-2.0 (211), Apache-2.0 OR MIT (68), MIT (61), Unicode-3.0 (18), MIT/Apache-2.0 (16), Unlicense OR MIT (9), Apache-2.0 (7), BSD-3-Clause (5), MPL-2.0 (5), Apache-2.0 OR ISC OR MIT (2), ISC (2), MIT OR Zlib OR Apache-2.0 (2), Unlicense/MIT (2), Zlib (2), (Apache-2.0 OR MIT) AND BSD-3-Clause (1), (MIT OR Apache-2.0) AND Unicode-3.0 (1), 0BSD OR MIT OR Apache-2.0 (1), Apache-2.0 / MIT (1), Apache-2.0 AND ISC (1), Apache-2.0 AND MIT (1), Apache-2.0/MIT (1), BSD-2-Clause OR Apache-2.0 OR MIT (1), BSD-3-Clause AND MIT (1), BSD-3-Clause/MIT (1), CC0-1.0 OR MIT-0 OR Apache-2.0 (1), CDLA-Permissive-2.0 (1), ISC AND (Apache-2.0 OR ISC) (1), ISC AND (Apache-2.0 OR ISC) AND Apache-2.0 AND MIT AND BSD-3-Clause AND (Apache-2.0 OR ISC OR MIT) AND (Apache-2.0 OR ISC OR MIT-0) (1), MIT OR Apache-2.0 OR Zlib (1), Zlib OR Apache-2.0 OR MIT (1).
 
 | Package | Version | License |
 | --- | --- | --- |
@@ -199,7 +199,7 @@ Linked into the desktop app. Licenses: MIT OR Apache-2.0 (212), Apache-2.0 OR MI
 | [html5ever](https://github.com/servo/html5ever) | 0.39.0 | MIT OR Apache-2.0 |
 | [http](https://github.com/hyperium/http) | 1.5.0 | MIT OR Apache-2.0 |
 | [hybrid-array](https://github.com/RustCrypto/hybrid-array) | 0.4.15 | MIT OR Apache-2.0 |
-| [ico](https://github.com/mdsteele/rust-ico) | 0.5.0 | MIT |
+| [ico](https://github.com/mdsteele/rust-ico) | 0.6.0 | MIT |
 | [icu_collections](https://github.com/unicode-org/icu4x) | 2.3.0 | Unicode-3.0 |
 | [icu_locale_core](https://github.com/unicode-org/icu4x) | 2.3.0 | Unicode-3.0 |
 | [icu_normalizer](https://github.com/unicode-org/icu4x) | 2.3.0 | Unicode-3.0 |
@@ -227,7 +227,7 @@ Linked into the desktop app. Licenses: MIT OR Apache-2.0 (212), Apache-2.0 OR MI
 | [keyed_priority_queue](https://github.com/AngelicosPhosphoros/keyed_priority_queue) | 0.4.2 | MIT |
 | [lazy_static](https://github.com/rust-lang-nursery/lazy-static.rs) | 1.5.1 | MIT OR Apache-2.0 |
 | [libc](https://github.com/rust-lang/libc) | 0.2.191 | MIT OR Apache-2.0 |
-| [libsqlite3-sys](https://github.com/rusqlite/rusqlite) | 0.38.2 | MIT |
+| [libsqlite3-sys](https://github.com/rusqlite/rusqlite) | 0.39.1 | MIT |
 | [litemap](https://github.com/unicode-org/icu4x) | 0.8.3 | Unicode-3.0 |
 | [lock_api](https://github.com/Amanieu/parking_lot) | 0.4.14 | MIT OR Apache-2.0 |
 | [log](https://github.com/rust-lang/log) | 0.4.34 | MIT OR Apache-2.0 |
@@ -263,7 +263,7 @@ Linked into the desktop app. Licenses: MIT OR Apache-2.0 (212), Apache-2.0 OR MI
 | [p256](https://github.com/RustCrypto/elliptic-curves) | 0.14.0 | Apache-2.0 OR MIT |
 | [p384](https://github.com/RustCrypto/elliptic-curves) | 0.14.0 | Apache-2.0 OR MIT |
 | [p521](https://github.com/RustCrypto/elliptic-curves) | 0.14.0 | Apache-2.0 OR MIT |
-| [pageant](https://github.com/warp-tech/russh) | 0.2.4 | Apache-2.0 |
+| [pageant](https://github.com/warp-tech/russh) | 0.2.5 | Apache-2.0 |
 | [parking_lot](https://github.com/Amanieu/parking_lot) | 0.12.5 | MIT OR Apache-2.0 |
 | [parking_lot_core](https://github.com/Amanieu/parking_lot) | 0.9.12 | MIT OR Apache-2.0 |
 | [password-hash](https://github.com/RustCrypto/traits) | 0.6.1 | MIT OR Apache-2.0 |
@@ -280,7 +280,6 @@ Linked into the desktop app. Licenses: MIT OR Apache-2.0 (212), Apache-2.0 OR MI
 | [pkcs5](https://github.com/RustCrypto/formats) | 0.8.1 | Apache-2.0 OR MIT |
 | [pkcs8](https://github.com/RustCrypto/formats) | 0.11.0 | Apache-2.0 OR MIT |
 | [plist](https://github.com/ebarnard/rust-plist/) | 1.10.2 | MIT |
-| [png](https://github.com/image-rs/image-png) | 0.17.16 | MIT OR Apache-2.0 |
 | [png](https://github.com/image-rs/image-png) | 0.18.1 | MIT OR Apache-2.0 |
 | [poly1305](https://github.com/RustCrypto/universal-hashes) | 0.9.1 | Apache-2.0 OR MIT |
 | [polyval](https://github.com/RustCrypto/universal-hashes) | 0.7.3 | Apache-2.0 OR MIT |
@@ -314,11 +313,11 @@ Linked into the desktop app. Licenses: MIT OR Apache-2.0 (212), Apache-2.0 OR MI
 | [regex-automata](https://github.com/rust-lang/regex) | 0.4.18 | MIT OR Apache-2.0 |
 | [regex-syntax](https://github.com/rust-lang/regex) | 0.8.11 | MIT OR Apache-2.0 |
 | [rfc6979](https://github.com/RustCrypto/signatures) | 0.6.0 | Apache-2.0 OR MIT |
-| [rfd](https://github.com/PolyMeilex/rfd) | 0.16.0 | MIT |
+| [rfd](https://github.com/PolyMeilex/rfd) | 0.17.2 | MIT |
 | [ring](https://github.com/briansmith/ring) | 0.17.14 | Apache-2.0 AND ISC |
 | [rsa](https://github.com/RustCrypto/RSA) | 0.10.0-rc.18 | MIT OR Apache-2.0 |
-| [rusqlite](https://github.com/rusqlite/rusqlite) | 0.40.2 | MIT |
-| [russh](https://github.com/warp-tech/russh) | 0.64.1 | Apache-2.0 |
+| [rusqlite](https://github.com/rusqlite/rusqlite) | 0.41.1 | MIT |
+| [russh](https://github.com/warp-tech/russh) | 0.65.1 | Apache-2.0 |
 | [russh-cryptovec](https://github.com/warp-tech/russh) | 0.62.0 | Apache-2.0 |
 | [russh-util](https://github.com/warp-tech/russh) | 0.52.0 | Apache-2.0 |
 | [rust_decimal](https://github.com/paupino/rust-decimal) | 1.43.0 | MIT |
@@ -385,16 +384,16 @@ Linked into the desktop app. Licenses: MIT OR Apache-2.0 (212), Apache-2.0 OR MI
 | [syn](https://github.com/dtolnay/syn) | 3.0.9 | MIT OR Apache-2.0 |
 | [synstructure](https://github.com/mystor/synstructure) | 0.14.0 | MIT |
 | [tao](https://github.com/tauri-apps/tao) | 0.37.1 | Apache-2.0 |
-| [tauri](https://github.com/tauri-apps/tauri) | 2.12.4 | Apache-2.0 OR MIT |
-| [tauri-codegen](https://github.com/tauri-apps/tauri) | 2.7.3 | Apache-2.0 OR MIT |
-| [tauri-macros](https://github.com/tauri-apps/tauri) | 2.7.3 | Apache-2.0 OR MIT |
-| [tauri-plugin-dialog](https://github.com/tauri-apps/plugins-workspace) | 2.8.3 | Apache-2.0 OR MIT |
+| [tauri](https://github.com/tauri-apps/tauri) | 2.12.5 | Apache-2.0 OR MIT |
+| [tauri-codegen](https://github.com/tauri-apps/tauri) | 2.7.4 | Apache-2.0 OR MIT |
+| [tauri-macros](https://github.com/tauri-apps/tauri) | 2.7.4 | Apache-2.0 OR MIT |
+| [tauri-plugin-dialog](https://github.com/tauri-apps/plugins-workspace) | 2.8.4 | Apache-2.0 OR MIT |
 | [tauri-plugin-fs](https://github.com/tauri-apps/plugins-workspace) | 2.7.1 | Apache-2.0 OR MIT |
 | [tauri-plugin-opener](https://github.com/tauri-apps/plugins-workspace) | 2.7.2 | Apache-2.0 OR MIT |
-| [tauri-plugin-single-instance](https://github.com/tauri-apps/plugins-workspace) | 2.5.4 | Apache-2.0 OR MIT |
+| [tauri-plugin-single-instance](https://github.com/tauri-apps/plugins-workspace) | 2.5.5 | Apache-2.0 OR MIT |
 | [tauri-plugin-window-state](https://github.com/tauri-apps/plugins-workspace) | 2.5.0 | Apache-2.0 OR MIT |
 | [tauri-runtime](https://github.com/tauri-apps/tauri) | 2.12.2 | Apache-2.0 OR MIT |
-| [tauri-runtime-wry](https://github.com/tauri-apps/tauri) | 2.12.2 | Apache-2.0 OR MIT |
+| [tauri-runtime-wry](https://github.com/tauri-apps/tauri) | 2.12.3 | Apache-2.0 OR MIT |
 | [tauri-utils](https://github.com/tauri-apps/tauri) | 2.10.2 | Apache-2.0 OR MIT |
 | [tendril](https://github.com/servo/html5ever) | 0.5.1 | MIT OR Apache-2.0 |
 | [termcolor](https://github.com/BurntSushi/termcolor) | 1.4.1 | Unlicense OR MIT |
@@ -408,7 +407,7 @@ Linked into the desktop app. Licenses: MIT OR Apache-2.0 (212), Apache-2.0 OR MI
 | [time-macros](https://github.com/time-rs/time) | 0.2.32 | MIT OR Apache-2.0 |
 | [tinystr](https://github.com/unicode-org/icu4x) | 0.8.4 | Unicode-3.0 |
 | [tinyvec](https://github.com/Lokathor/tinyvec) | 1.13.3 | Zlib OR Apache-2.0 OR MIT |
-| [tokio](https://github.com/tokio-rs/tokio) | 1.54.0 | MIT |
+| [tokio](https://github.com/tokio-rs/tokio) | 1.54.1 | MIT |
 | [tokio-macros](https://github.com/tokio-rs/tokio) | 2.7.2 | MIT |
 | [tokio-rustls](https://github.com/rustls/tokio-rustls) | 0.26.6 | MIT OR Apache-2.0 |
 | [tokio-util](https://github.com/tokio-rs/tokio) | 0.7.20 | MIT |
@@ -455,12 +454,12 @@ Linked into the desktop app. Licenses: MIT OR Apache-2.0 (212), Apache-2.0 OR MI
 | [windows-numerics](https://github.com/microsoft/windows-rs) | 0.3.1 | MIT OR Apache-2.0 |
 | [windows-result](https://github.com/microsoft/windows-rs) | 0.4.1 | MIT OR Apache-2.0 |
 | [windows-strings](https://github.com/microsoft/windows-rs) | 0.5.1 | MIT OR Apache-2.0 |
-| [windows-sys](https://github.com/microsoft/windows-rs) | 0.60.2 | MIT OR Apache-2.0 |
+| [windows-sys](https://github.com/microsoft/windows-rs) | 0.52.0 | MIT OR Apache-2.0 |
 | [windows-sys](https://github.com/microsoft/windows-rs) | 0.61.2 | MIT OR Apache-2.0 |
-| [windows-targets](https://github.com/microsoft/windows-rs) | 0.53.5 | MIT OR Apache-2.0 |
+| [windows-targets](https://github.com/microsoft/windows-rs) | 0.52.6 | MIT OR Apache-2.0 |
 | [windows-threading](https://github.com/microsoft/windows-rs) | 0.2.1 | MIT OR Apache-2.0 |
 | [windows-version](https://github.com/microsoft/windows-rs) | 0.1.7 | MIT OR Apache-2.0 |
-| [windows_x86_64_msvc](https://github.com/microsoft/windows-rs) | 0.53.1 | MIT OR Apache-2.0 |
+| [windows_x86_64_msvc](https://github.com/microsoft/windows-rs) | 0.52.6 | MIT OR Apache-2.0 |
 | [winnow](https://github.com/winnow-rs/winnow) | 1.0.4 | MIT |
 | [wnaf](https://github.com/RustCrypto/elliptic-curves) | 0.14.1 | Apache-2.0 OR MIT |
 | [writeable](https://github.com/unicode-org/icu4x) | 0.6.4 | Unicode-3.0 |
@@ -500,19 +499,19 @@ Bundled into the user interface. Licenses: MIT (27), MIT OR Apache-2.0 (2), Apac
 | [@lezer/highlight](https://www.npmjs.com/package/@lezer/highlight) | 1.2.5 | MIT |
 | [@lezer/lr](https://www.npmjs.com/package/@lezer/lr) | 1.4.11 | MIT |
 | [@marijn/find-cluster-break](https://www.npmjs.com/package/@marijn/find-cluster-break) | 1.0.4 | MIT |
-| [@tanstack/react-virtual](https://www.npmjs.com/package/@tanstack/react-virtual) | 3.14.21 | MIT |
-| [@tanstack/virtual-core](https://www.npmjs.com/package/@tanstack/virtual-core) | 3.19.6 | MIT |
+| [@tanstack/react-virtual](https://www.npmjs.com/package/@tanstack/react-virtual) | 3.14.26 | MIT |
+| [@tanstack/virtual-core](https://www.npmjs.com/package/@tanstack/virtual-core) | 3.19.11 | MIT |
 | [@tauri-apps/api](https://www.npmjs.com/package/@tauri-apps/api) | 2.12.4 | Apache-2.0 OR MIT |
-| [@tauri-apps/plugin-dialog](https://www.npmjs.com/package/@tauri-apps/plugin-dialog) | 2.8.3 | MIT OR Apache-2.0 |
+| [@tauri-apps/plugin-dialog](https://www.npmjs.com/package/@tauri-apps/plugin-dialog) | 2.8.4 | MIT OR Apache-2.0 |
 | [@tauri-apps/plugin-opener](https://www.npmjs.com/package/@tauri-apps/plugin-opener) | 2.7.2 | MIT OR Apache-2.0 |
 | [@uiw/codemirror-extensions-basic-setup](https://www.npmjs.com/package/@uiw/codemirror-extensions-basic-setup) | 4.25.12 | MIT |
 | [@uiw/react-codemirror](https://www.npmjs.com/package/@uiw/react-codemirror) | 4.25.12 | MIT |
 | [codemirror](https://www.npmjs.com/package/codemirror) | 6.0.2 | MIT |
 | [crelt](https://www.npmjs.com/package/crelt) | 1.0.7 | MIT |
-| [lucide-react](https://www.npmjs.com/package/lucide-react) | 1.60.0 | ISC |
+| [lucide-react](https://www.npmjs.com/package/lucide-react) | 1.70.0 | ISC |
 | [react](https://www.npmjs.com/package/react) | 19.3.1 | MIT |
 | [react-dom](https://www.npmjs.com/package/react-dom) | 19.3.1 | MIT |
 | [scheduler](https://www.npmjs.com/package/scheduler) | 0.28.0 | MIT |
 | [style-mod](https://www.npmjs.com/package/style-mod) | 4.1.4 | MIT |
 | [w3c-keyname](https://www.npmjs.com/package/w3c-keyname) | 2.2.8 | MIT |
-| [zustand](https://www.npmjs.com/package/zustand) | 5.0.15 | MIT |
+| [zustand](https://www.npmjs.com/package/zustand) | 5.1.0 | MIT |

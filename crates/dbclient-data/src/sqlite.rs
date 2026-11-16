@@ -189,8 +189,8 @@ fn run_batch(conn: &rusqlite::Connection, sql: &str, max_rows: u32) -> QueryResu
             continue;
         }
         let mut rs = ResultSet {
-            column_names: stmt.column_names().iter().map(|s| s.to_string()).collect(),
-            column_types: stmt.columns().iter().map(|c| c.decl_type().map(|t| t.to_string())).collect(),
+            column_names: stmt.column_names().map(|s| s.to_string()).collect(),
+            column_types: stmt.columns().map(|c| c.decl_type().map(|t| t.to_string())).collect(),
             ..Default::default()
         };
         let mut rows = match stmt.query([]) {
